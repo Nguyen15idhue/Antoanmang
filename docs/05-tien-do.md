@@ -56,8 +56,11 @@ Quy ước trạng thái: `[ ]` chưa làm, `[~]` đang làm, `[x]` xong (có b�
 | Chưa có VM Ubuntu 20.04 | Không có môi trường chạy Docker đúng chuẩn | Phòng lab | Đăng ký nhận máy; nếu không có, dùng phương án 9 trong `02-lab02-ke-hoach.md` |
 | Chưa có `x`, `y` | Không sửa được compose | Giảng viên | Hỏi kèm mã lớp thực hành |
 
-## Bước tiếp theo đề xuất
+## Trạng thái cuối (đã hoàn thành)
 
-1. Chạy A0 + A1 (sửa host-only, boot 2 VM, xác nhận IP) - làm được ngay, không phụ thuộc ai.
-2. Làm A2 -> A5 để có 4 pcap và bảng CVE.
-3. Song song: gửi giảng viên xin source Lab02 + `x`, `y` + xác nhận VM Ubuntu 20.04.
+- Lab01: xong 4 pcap `lab01/task1..4.pcap`; còn bảng CVE cần chép vào báo cáo Lab01.
+- Lab02: B1 -> B5 xong. pcap + ảnh nằm trong `lab02/evidence/` (`pcaps/`, `screenshots/`).
+- Báo cáo: `lab02/report/NhomX_Lab02_BaoCao.docx` (20 ảnh, 7 bảng); gói nộp
+  `lab02/report/NhomX_Lab02_BaoCao.zip` gồm báo cáo + 5 pcap (3 pcap chính + 2 pcap phụ KB3).
+- Việc còn lại của sinh viên: điền tên/MSSV sinh viên 2, xác nhận lại `x`, `y` với giảng viên
+  (bài đang dùng x = 11, y = 1), rà ảnh lần cuối trước khi nộp.

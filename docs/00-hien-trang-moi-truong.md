@@ -99,3 +99,30 @@ Sau khi sửa, kiểm tra lại bằng `VBoxManage list hostonlyifs` (phải th�
 2. Ubuntu 12.04 đã hết hỗ trợ: `apt-get update` sẽ lỗi 404. Không cài thêm gói trừ khi đổi `sources.list` sang `old-releases.ubuntu.com`.
 3. Nếu dùng Docker Desktop trên Windows thay vì VM phòng lab: interface `br-...` nằm trong WSL2, Wireshark trên Windows không bắt được -> phải dùng `tcpdump` trong container. Đây là phương án dự phòng, không phải phương án chính.
 4. Lab02 không thể bắt đầu khi chưa có `docker-compose.yml` của giảng viên (IP, tên container, interface phụ thuộc file này).
+
+## 7. Cập nhật sau khi thực hiện (2026-10-21)
+
+Đã sửa và kiểm chứng:
+
+| Việc | Kết quả |
+|---|---|
+| Host-only adapter | `192.168.117.1/24`, `Status: Up` |
+| VM rác | Đã unregister 2 VM `<inaccessible>` |
+| Attack (`NguyenMachine`) | Boot OK, SSH OK, IP `192.168.117.10` trên card **`eth14`** (không phải `eth0`) |
+| Server (`Server3`) | Boot OK, SSH OK, IP `192.168.117.13` trên `enp0s3`; thực tế **Ubuntu 16.04.2 LTS** |
+| Autologin GUI Attack | Bật qua `/etc/lightdm/lightdm.conf` (drop-in không có tác dụng trên 12.04) |
+| Chụp ảnh màn hình Attack | `gnome-screenshot -d 1` lưu vào `~/Pictures/Screenshot from <time>.png` (không hỗ trợ `-f/--file`) |
+| VM Ubuntu 20.04 | Tạo `Ubuntu2004` (4 GB RAM, 2 CPU, 40 GB, NAT + host-only), cài tự động bằng `VBoxManage unattended install` |
+
+Công cụ trong từng VM:
+
+| Công cụ | Attack (12.04) | Server (16.04) |
+|---|---|---|
+| nmap | `/usr/bin/nmap` (5.21) | Không |
+| Wireshark GUI | Có | Không |
+| tcpdump | `/usr/sbin/tcpdump` | Có (dùng được với sudo) |
+| python | `python2` | `python3` |
+| sshd | Có (`/usr/sbin/sshd`) | Có |
+| bind9 / telnetd | - | Có (53, 23) |
+
+Kết nối điều khiển: dùng `plink.exe` (PuTTY 0.81) với `-hostkey` cố định; `sudo` cần mật khẩu `bkcs` qua `sudo -S`.

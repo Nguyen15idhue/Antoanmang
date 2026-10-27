@@ -1,0 +1,12 @@
+#!/bin/sh
+if [ -z "$1" ]; then
+    echo "Usage: docksh <container_id|name>"
+    exit 1
+fi
+id=$(docker ps -q --filter "name=$1" | head -n 1)
+if [ -z "$id" ]; then
+    echo "Không tìm thấy container: $1"
+    docker ps --format '{{.ID}}  {{.Names}}'
+    exit 1
+fi
+exec docker exec -it "$id" /bin/bash

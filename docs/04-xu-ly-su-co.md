@@ -185,3 +185,52 @@ ls -lh *.pcap
 ```
 
 Quy tắc: tên `NhomX_Lab02_BaoCao.zip`, bên trong có báo cáo (PDF/DOCX) + `task1.pcap`, `task2.pcap`, `task3.pcap`.
+
+## 16. Điều khiển VM từ Windows (đã dùng thực tế)
+
+```powershell
+$plink = "C:\Program Files\PuTTY\plink.exe"
+$hk = "SHA256:K9iqafMZFZYzEXePk+2ZkJs5kh/LH5MiCKPMLwoEJT0"   # Attack
+& $plink -ssh -batch -hostkey $hk -pw bkcs -m "script.sh" bkcs@192.168.117.10
+```
+
+- Không dùng `-batch` khi host key chưa được lưu; `plink` 0.81 không có `-auto-store-sshkey`, phải truyền `-hostkey`.
+- Lấy fingerprint bằng cách chạy `plink` lần đầu và đọc dòng `SHA256:...`.
+- `sudo` trong script: `echo bkcs | sudo -S <lệnh>`.
+- Script đặt trong `C:\Users\ADMIN\AppData\Local\Temp\opencode\*.sh` và chạy bằng `-m`.
+- Copy file: `pscp -batch -hostkey $hk -pw bkcs bkcs@192.168.117.10:/tmp/task1.pcap .\lab01\`.
+
+## 17. Chụp ảnh màn hình trong VM Attack (12.04)
+
+```bash
+export DISPLAY=:0 XAUTHORITY=/home/bkcs/.Xauthority
+gnome-screenshot -d 1
+ls -t ~/Pictures | head -1
+```
+
+- Bản 12.04 **không hỗ trợ** `-f/--file`; ảnh tự lưu vào `~/Pictures/Screenshot from <thời gian>.png`.
+- Cần phiên desktop đăng nhập sẵn. Đã bật autologin bằng cách thêm `[SeatDefaults]` + `autologin-user=bkcs` vào `/etc/lightdm/lightdm.conf` (thư mục `lightdm.conf.d` không có tác dụng trên 12.04).
+
+## 18. Tên card mạng không phải eth0
+
+Trên Attack 12.04 card host-only là **`eth14`**; trên Server 16.04 là `enp0s3`. Luôn kiểm tra trước khi bắt gói:
+
+```bash
+ip -br link
+ip -br addr
+```
+
+## 19. Cài Ubuntu 20.04 tự động bằng VirtualBox
+
+```powershell
+& $vbm createvm --name "Ubuntu2004" --ostype Ubuntu20_64 --register --basefolder "F:\2.VirtualMachine\1.VirtualBox"
+& $vbm modifyvm "Ubuntu2004" --memory 4096 --cpus 2 --vram 128 --graphicscontroller vmsvga --nic1 nat --nic2 hostonly --hostonlyadapter2 "VirtualBox Host-Only Ethernet Adapter" --audio none --ioapic on --rtcuseutc on
+& $vbm createmedium disk --filename "F:\2.VirtualMachine\1.VirtualBox\Ubuntu2004\Ubuntu2004.vdi" --size 40960 --format VDI
+& $vbm storagectl "Ubuntu2004" --name SATA --add sata --controller IntelAhci --portcount 2 --bootable on
+& $vbm storageattach "Ubuntu2004" --storagectl SATA --port 0 --device 0 --type hdd --medium "...\Ubuntu2004.vdi"
+& $vbm unattended install "Ubuntu2004" --iso="...ubuntu-20.04.6-desktop-amd64.iso" --user=bkcs --password=bkcs --full-user-name="bkcs" --hostname=lab02.lab --locale=en_US --country=US --time-zone=Asia/Ho_Chi_Minh --install-additions --start-vm=headless
+```
+
+- `--hostname` **phải có domain** (`lab02.lab`), nếu chỉ `lab02` sẽ báo `E_INVALIDARG`.
+- Theo dõi tiến trình: `VBoxManage controlvm Ubuntu2004 screenshotpng out.png` rồi mở ảnh.
+- Sau khi cài xong, dùng `VBoxManage guestcontrol` (Guest Additions) để chạy lệnh trước khi có SSH.

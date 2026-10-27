@@ -1,0 +1,51 @@
+version: "3.7"
+
+services:
+  user:
+    build: ./image
+    image: lab02-node:latest
+    container_name: user
+    hostname: user
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    command: sleep infinity
+    networks:
+      lab02net:
+        ipv4_address: ${USER_IP}
+
+  server:
+    build: ./image
+    image: lab02-node:latest
+    container_name: server
+    hostname: server
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    command: sleep infinity
+    networks:
+      lab02net:
+        ipv4_address: ${SERVER_IP}
+
+  attacker:
+    build: ./image
+    image: lab02-node:latest
+    container_name: attacker
+    hostname: attacker
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    command: sleep infinity
+    volumes:
+      - ./attack:/attack
+    networks:
+      lab02net:
+        ipv4_address: ${ATTACKER_IP}
+
+networks:
+  lab02net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${SUBNET}

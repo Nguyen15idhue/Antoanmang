@@ -204,3 +204,23 @@ tshark -r task1_full.pcap -Y "arp" -w task1.pcap
 - [ ] A4: `task3.pcap` + kết luận TCP ACK Scan
 - [ ] A5: `task4.pcap` + bảng dịch vụ + bảng CVE
 - [ ] A6: đã kiểm tra mở lại 4 pcap bằng Wireshark, dung lượng hợp lý
+
+## 10. Kết quả đã chạy (2026-10-21)
+
+Điều chỉnh so với kế hoạch:
+
+- Card mạng của Attack là **`eth14`**, không phải `eth0`; mọi lệnh `tcpdump` phải dùng `-i eth14`.
+- Không có `dumpcap`; dùng `tcpdump` (cần `sudo`).
+- `nmap` trên Attack là bản 5.21, `-sS/-sA` cần `sudo`.
+- Chạy lệnh từ host qua `plink -m script.sh` để tránh lỗi quoting.
+
+Kết quả:
+
+| Task | Lệnh | Kết quả | pcap |
+|---|---|---|---|
+| 1 | `nmap -sn 192.168.117.0/24` | 4-5 host up; 512 dòng ARP -> **ARP Ping Scan** | `task1.pcap` (37 KB) |
+| 2 | `nmap -sS -F 192.168.117.13` | mở 22, 23; không hoàn tất bắt tay -> **TCP SYN Scan** | `task2.pcap` (19 KB) |
+| 3 | `nmap -sA -F 192.168.117.13` | 100/100 cổng `unfiltered` -> **TCP ACK Scan** | `task3.pcap` (18 KB) |
+| 4 | `nmap -p 25,110,143,993,995 192.168.117.0/24` + `-sV -O` | Không có dịch vụ email trong mạng lab; thu được OpenSSH 7.2p2, telnetd, BIND 9.10.3-P4-Ubuntu | `task4.pcap` (214 KB) |
+
+Ghi chú cho bài nộp: dải `192.168.100.0/24` trong đề mục 3.2 không tồn tại trong môi trường Lab01 (mạng là `192.168.117.0/24`). Cần hỏi giảng viên và ghi rõ giả định; bảng CVE lập cho ssh/telnet/dns tìm được.

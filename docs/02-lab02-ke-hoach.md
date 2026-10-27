@@ -294,3 +294,21 @@ Chỉ dùng khi không nhận được VM của phòng lab.
 - [ ] B4: KB3 chạy, `task3.pcap` <= 1 MB, có ảnh trước/sau + giải thích
 - [ ] B5: `arp -s` + cờ M + ảnh kết quả tấn công lại + kết luận
 - [ ] B6: báo cáo đủ ô, zip đúng tên, mở lại kiểm tra
+
+## 12. Cập nhật (2026-10-21): tự dựng bộ source
+
+Do chưa có `it4263lab/lab02` từ giảng viên, bộ source tương đương đã được tạo tại `F:\3.Laptrinh\2.Learning\Antoanmang\lab02`:
+
+| File | Chức năng |
+|---|---|
+| `docker-compose.yml` + `.env` | 3 container User/Server/Attacker, subnet `10.11.1.0/24` (giả định x=11, y=1) |
+| `image/Dockerfile` | Ubuntu 20.04 + python3, net-tools, tcpdump, netcat, ping |
+| `attack/arp.py` | Gửi/nhận frame ARP thô bằng `AF_PACKET` |
+| `attack/scenario1.py` | Poison một chiều tới User (giả IP Server) |
+| `attack/scenario2.py` | Poison hai chiều User <-> Server |
+| `attack/mitm.py` | Chuyển tiếp + sửa payload TCP (`hello` -> `pwned`), tự đặt `ip_forward=0` |
+| `bin/dockps`, `bin/docksh` | Tiện ích như tài liệu |
+
+Khác biệt cần ghi trong báo cáo: đây là source tự dựng, không phải file của giảng viên; tham số `x`, `y` là giả định, sẽ sửa trong `.env` nếu giảng viên công bố giá trị thật.
+
+Lưu ý `ip_forward`: script MITM đặt `ip_forward=0` để tránh kernel forward song song gây gửi trùng; bước 7 của đề vẫn thực hiện trước để kiểm tra kết nối, sau đó script ghi đè.

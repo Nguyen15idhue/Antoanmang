@@ -126,19 +126,26 @@ Nhận xét: hỏi trực tiếp Attacker NS trả về IP giả `1.2.3.4`, xác
 
 | Trường | Giá trị |
 |---|---|
-| Địa chỉ IP nguồn | `<điền>` |
-| Số hiệu cổng nguồn | `<điền>` |
-| Địa chỉ IP đích | `<điền>` |
+| Địa chỉ IP nguồn | `10.11.1.30` (container Attacker) |
+| Số hiệu cổng nguồn | `12345` |
+| Địa chỉ IP đích | `10.11.1.20` (Local DNS Server) |
 | Số hiệu cổng đích | `53` |
-| Tên miền được truy vấn | `<điền, ví dụ abcxyz.example.com>` |
+| Tên miền được truy vấn | `abcxyz.example.com` (A, IN) |
 
-Bằng chứng: file `ip_req.bin` + ảnh `L03-C3-ip-req-bin.png` (mở bằng Wireshark hoặc `xxd`).
+Bằng chứng: file `ip_req.bin` (64 byte) + ảnh `L03-C3-ip-req-bin.png`.
+
+```text
+45 00 00 1c c4 ea 00 00 40 11 9f 9f 0a 0b 01 1e   E.......@.......
+0a 0b 01 14 30 39 00 35 00 2c 00 00 50 0f 01 00   ....09.5.,..P...
+00 01 00 00 00 00 00 00 06 61 62 63 78 79 7a 07   .........abcxyz.
+65 78 61 6d 70 6c 65 03 63 6f 6d 00 00 01 00 01   example.com.....
+```
+
+Phân tích: IP nguồn `0a0b011e` = 10.11.1.30; IP đích `0a0b0114` = 10.11.1.20; cổng nguồn `0x3039` = 12345; cổng đích `0x0035` = 53; UDP length `0x002c` = 44; DNS ID `0x500f`; question `abcxyz.example.com` type A class IN.
 
 ### 2.2. Vì sao truy vấn tới tên miền không tồn tại (1 điểm)
 
-> Gợi ý: Local DNS Server chưa có bản ghi trong cache nên buộc phải forward query ra server cấp trên. Trong khoảng thời gian chờ response thật, Attacker có cơ hội gửi response giả để "thắng race". Nếu hỏi tên đã có cache, Local DNS Server trả lời ngay, không có khoảng trống để chèn gói giả.
-
-Trả lời: `<điền>`
+Trả lời: `abcxyz.example.com` là tên miền không tồn tại, Local DNS Server không có bản ghi trong cache nên buộc phải gửi query forward ra server cấp trên (`8.8.8.8`) và chờ trả lời. Trong khoảng thời gian chờ đó, Attacker có thể gửi response giả để "thắng race" (Kaminsky attack). Nếu hỏi một tên đã có trong cache, Local DNS Server trả lời ngay lập tức, không tạo ra khoảng trống để chèn gói giả, nên tấn công không thể thực hiện.
 
 ---
 

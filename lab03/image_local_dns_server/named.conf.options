@@ -1,0 +1,19 @@
+options {
+    directory "/var/cache/bind";
+    recursion yes;
+    allow-query { any; };
+    forward only;
+    forwarders { 8.8.8.8; };
+    query-source port 44444;
+    dnssec-validation no;
+    send-cookie no;
+    listen-on { any; };
+    listen-on-v6 { none; };
+    pid-file "/run/named/named.pid";
+    session-keyfile "/run/named/session.key";
+};
+
+include "/etc/bind/rndc.key";
+controls {
+    inet 127.0.0.1 allow { localhost; } keys { "rndc-key"; };
+};

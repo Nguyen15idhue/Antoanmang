@@ -1,0 +1,74 @@
+version: "3.7"
+
+services:
+  user:
+    build: ./image
+    image: lab03-node:latest
+    container_name: user
+    hostname: user
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    command: sleep infinity
+    volumes:
+      - ./image_user/resolv.conf:/etc/resolv.conf:ro
+    networks:
+      lab03net:
+        ipv4_address: ${USER_IP}
+
+  local_dns_server:
+    build: ./image
+    image: lab03-node:latest
+    container_name: local_dns_server
+    hostname: local_dns_server
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    command: named -g -c /etc/bind/named.conf
+    volumes:
+      - ./image_local_dns_server/named.conf:/etc/bind/named.conf:ro
+      - ./image_local_dns_server/named.conf.options:/etc/bind/named.conf.options:ro
+    networks:
+      lab03net:
+        ipv4_address: ${LOCAL_DNS_IP}
+
+  attacker:
+    build: ./image
+    image: lab03-node:latest
+    container_name: attacker
+    hostname: attacker
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    command: sleep infinity
+    working_dir: /attack
+    volumes:
+      - ./attack:/attack
+    networks:
+      lab03net:
+        ipv4_address: ${ATTACKER_IP}
+
+  attacker_ns:
+    build: ./image
+    image: lab03-node:latest
+    container_name: attacker_ns
+    hostname: attacker_ns
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    command: named -g -c /etc/bind/named.conf
+    volumes:
+      - ./image_attacker_ns/named.conf:/etc/bind/named.conf:ro
+      - ./image_attacker_ns/zone_attacker32.com:/etc/bind/zone_attacker32.com:ro
+      - ./image_attacker_ns/zone_example.com:/etc/bind/zone_example.com:ro
+    networks:
+      lab03net:
+        ipv4_address: ${ATTACKER_NS_IP}
+
+networks:
+  lab03net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${SUBNET}

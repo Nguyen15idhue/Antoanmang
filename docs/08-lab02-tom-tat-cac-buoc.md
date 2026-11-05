@@ -39,6 +39,13 @@ Mỗi bước gồm: mục đích - lệnh - kết quả kỳ vọng.
 - **Mục đích:** lừa User rằng IP Server nằm tại MAC Attacker, gây mất kết nối (DoS).
 - **Lệnh:**
   ```bash
+  # Tắt forward trên Attacker để gói đến bị drop (nếu =1 thì ping vẫn thông)
+  docker exec attacker sysctl -w net.ipv4.ip_forward=0
+  docker exec attacker sysctl net.ipv4.ip_forward
+
+  # Không cho User nhận ICMP Redirect
+  docker exec user sysctl -w net.ipv4.conf.all.accept_redirects=0 net.ipv4.conf.eth0.accept_redirects=0
+
   for c in user server attacker; do docker exec $c ip neigh flush all; done
   docker exec user ping -c 1 10.11.1.20 >/dev/null
   docker exec server ping -c 1 10.11.1.10 >/dev/null
@@ -50,7 +57,8 @@ Mỗi bước gồm: mục đích - lệnh - kết quả kỳ vọng.
   docker exec user arp -n
   docker exec user ping -c 3 10.11.1.20
   ```
-- **Kết quả:** ARP của User `10.11.1.20 at 02:42:0a:0b:01:33`; ping **100% packet loss**.
+- **Kết quả:** `net.ipv4.ip_forward = 0`; ARP của User `10.11.1.20 at 02:42:0a:0b:01:33`; ping **100% packet loss**.
+- **Lỗi thường gặp:** ping vẫn 0% loss dù ARP đã nhiễm → Attacker vẫn forward. Docker Desktop/WSL2 thường đặt `ip_forward=1`, phải set `0` thủ công sau mỗi lần tạo lại container.
 
 ---
 

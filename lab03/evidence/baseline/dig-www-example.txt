@@ -1,0 +1,22 @@
+
+; <<>> DiG 9.18.30-0ubuntu0.20.04.2-Ubuntu <<>> www.example.com
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 24444
+;; flags: qr rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+; COOKIE: af134dd96ca5a209010000006aec9acc15099b160fdca903 (good)
+;; QUESTION SECTION:
+;www.example.com.		IN	A
+
+;; ANSWER SECTION:
+www.example.com.	290	IN	A	172.66.147.243
+www.example.com.	290	IN	A	104.20.23.154
+
+;; Query time: 0 msec
+;; SERVER: 10.11.1.20#53(10.11.1.20) (UDP)
+;; WHEN: Thu Nov 05 15:03:40 UTC 2026
+;; MSG SIZE  rcvd: 104
+

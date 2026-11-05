@@ -4,14 +4,14 @@
 
 | Hạng mục | Nội dung |
 |---|---|
-| Họ tên | `<điền>` |
-| MSSV | `<điền>` |
-| Lớp / mã lớp thực hành | `<điền>` |
-| Nhóm (`x`, `y`) | `x = <điền>`, `y = <điền>` |
-| Ngày thực hiện | `<điền>` |
-| Ngày nộp | `<điền>` |
+| Họ tên | Phạm Quỳnh Chi |
+| MSSV | 223001699 |
+| Lớp / mã lớp thực hành | An toàn mạng máy tính |
+| Nhóm (`x`, `y`) | Không áp dụng (bài cá nhân) |
+| Ngày thực hiện | 2026-11-05 |
+| Ngày nộp | 2026-11-05 |
 
-Trạng thái tài liệu: `[ ] Chưa thực nghiệm` / `[ ] Đang thực hiện` / `[ ] Hoàn thành`
+Trạng thái tài liệu: `[ ] Chưa thực nghiệm` / `[x] Đang thực hiện` / `[ ] Hoàn thành`
 
 > Tài liệu này là báo cáo kết quả, điền trực tiếp sau khi làm theo `docs/10-lab03-ke-hoach.md`.
 > Mỗi mục dưới đây tương ứng một ô trong mẫu `lab03/Lab03_SttNhom_BaoCao.pdf`.
@@ -37,52 +37,86 @@ Kết luận nhanh: `<tấn công thành công / thất bại, lý do ngắn>`
 
 | Container | IP | Vai trò |
 |---|---|---|
-| Attacker | `<điền>` | Gửi query và response giả |
-| Local DNS Server | `<điền>` | Nạn nhân, BIND9 |
-| User | `<điền>` | Client |
-| Attacker NS (`ns.attacker32.com`) | `<điền>` | Máy chủ tên miền giả |
+| Attacker | `10.11.1.30` | Gửi query và response giả |
+| Local DNS Server | `10.11.1.20` | Nạn nhân, BIND9 |
+| User | `10.11.1.10` | Client |
+| Attacker NS (`ns.attacker32.com`) | `10.11.1.40` | Máy chủ tên miền giả |
 
-Các file đã sửa theo `x`, `y`:
+Các file đã cấu hình (bài cá nhân, không dùng `x`, `y`):
 
 | File | Nội dung sau khi sửa |
 |---|---|
-| `docker-compose.yml` | `<tóm tắt>` |
-| `image_attacker_ns/zone_attacker32.com` | `<tóm tắt>` |
-| `image_attacker_ns/zone_example.com` | `<tóm tắt>` |
-| `image_local_dns_server/named.conf` | `forwarders` = `<điền>` |
-| `image_user/resolv.conf` | `nameserver <IP Local DNS>` |
+| `docker-compose.yml` + `.env` | subnet `10.11.1.0/24`; User `.10`, Local DNS `.20`, Attacker `.30`, Attacker NS `.40` |
+| `image_attacker_ns/zone_attacker32.com` | `ns.attacker32.com. A 10.11.1.40` |
+| `image_attacker_ns/zone_example.com` | `example.com. NS ns.attacker32.com.`; `www.example.com. A 1.2.3.4` |
+| `image_local_dns_server/named.conf` | `forwarders { 8.8.8.8; };`; forward zone `attacker32.com` → `10.11.1.40` |
+| `image_user/resolv.conf` | `nameserver 10.11.1.20` |
 
-Bằng chứng: `<ảnh docker ps>` , `<ảnh ping chéo>`.
+Bằng chứng: `L03-B-docker-ps.png`, `L03-B-ping.png`.
 
 ### 1.2. Kết quả lệnh `dig ns.attacker32.com`
 
 ```text
-<dán kết quả dig>
+; <<>> DiG 9.18.30-0ubuntu0.20.04.2-Ubuntu <<>> ns.attacker32.com
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 28428
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; QUESTION SECTION:
+;ns.attacker32.com.             IN      A
+
+;; ANSWER SECTION:
+ns.attacker32.com.      290     IN      A       10.11.1.40
+
+;; SERVER: 10.11.1.20#53(10.11.1.20) (UDP)
 ```
 
 Ảnh: `L03-B10-dig-ns-attacker32.png`
 
-Nhận xét: `<IP trả về, có đúng IP Attacker NS không>`
+Nhận xét: trả về đúng IP `10.11.1.40` của Attacker NS; Local DNS phân giải được nhờ forward zone `attacker32.com`.
 
 ### 1.3. Kết quả lệnh `dig www.example.com`
 
 ```text
-<dán kết quả dig>
+; <<>> DiG 9.18.30-0ubuntu0.20.04.2-Ubuntu <<>> www.example.com
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 24444
+;; flags: qr rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 1
+
+;; QUESTION SECTION:
+;www.example.com.               IN      A
+
+;; ANSWER SECTION:
+www.example.com.        290     IN      A       172.66.147.243
+www.example.com.        290     IN      A       104.20.23.154
+
+;; SERVER: 10.11.1.20#53(10.11.1.20) (UDP)
 ```
 
 Ảnh: `L03-B11-dig-www-example.png`
 
-Nhận xét: `<IP trả về trước khi tấn công, đây là mốc so sánh>`
+Nhận xét: trước tấn công, `www.example.com` trả về IP thật của Cloudflare (`172.66.147.243`, `104.20.23.154`). Đây là mốc so sánh với kết quả sau tấn công.
 
 ### 1.4. Kết quả lệnh `dig @ns.attacker32.com www.example.com`
 
 ```text
-<dán kết quả dig>
+; <<>> DiG 9.18.30-0ubuntu0.20.04.2-Ubuntu <<>> @ns.attacker32.com www.example.com
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 18565
+;; flags: qr aa rd; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; QUESTION SECTION:
+;www.example.com.               IN      A
+
+;; ANSWER SECTION:
+www.example.com.        300     IN      A       1.2.3.4
+
+;; SERVER: 10.11.1.40#53(ns.attacker32.com) (UDP)
 ```
 
 Ảnh: `L03-B12-dig-at-ns-attacker32.png`
 
-Nhận xét: `<IP trả về khi hỏi trực tiếp Attacker NS>`
+Nhận xét: hỏi trực tiếp Attacker NS trả về IP giả `1.2.3.4`, xác nhận zone giả đã hoạt động.
 
 ---
 

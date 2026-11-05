@@ -1,0 +1,23 @@
+
+; <<>> DiG 9.18.30-0ubuntu0.20.04.2-Ubuntu <<>> @ns.attacker32.com www.example.com
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 18565
+;; flags: qr aa rd; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+;; WARNING: recursion requested but not available
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+; COOKIE: 34c79af041ae73af010000006aec9acc28caf8ffb17430f7 (good)
+;; QUESTION SECTION:
+;www.example.com.		IN	A
+
+;; ANSWER SECTION:
+www.example.com.	300	IN	A	1.2.3.4
+
+;; Query time: 0 msec
+;; SERVER: 10.11.1.40#53(ns.attacker32.com) (UDP)
+;; WHEN: Thu Nov 05 15:03:40 UTC 2026
+;; MSG SIZE  rcvd: 88
+

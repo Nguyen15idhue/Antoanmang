@@ -1,0 +1,5 @@
+CONTAINER ID   IMAGE               COMMAND                  CREATED          STATUS          PORTS     NAMES
+a18746690a42   lab03-node:latest   "named -g -c /etc/bi…"   22 seconds ago   Up 21 seconds             attacker_ns
+a16f227b80fa   lab03-node:latest   "named -g -c /etc/bi…"   22 seconds ago   Up 21 seconds             local_dns_server
+a4ff00a3f251   lab03-node:latest   "sleep infinity"         7 minutes ago    Up 7 minutes              attacker
+bf7fa00efcf9   lab03-node:latest   "sleep infinity"         7 minutes ago    Up 7 minutes              user

@@ -24,7 +24,7 @@ services:
     cap_add:
       - NET_ADMIN
       - NET_RAW
-    command: named -g -c /etc/bind/named.conf
+    command: named -g -c /etc/bind/named.conf -u bind
     volumes:
       - ./image_local_dns_server/named.conf:/etc/bind/named.conf:ro
       - ./image_local_dns_server/named.conf.options:/etc/bind/named.conf.options:ro
@@ -57,7 +57,7 @@ services:
     cap_add:
       - NET_ADMIN
       - NET_RAW
-    command: named -g -c /etc/bind/named.conf
+    command: named -g -c /etc/bind/named.conf -u bind
     volumes:
       - ./image_attacker_ns/named.conf:/etc/bind/named.conf:ro
       - ./image_attacker_ns/zone_attacker32.com:/etc/bind/zone_attacker32.com:ro

@@ -1,0 +1,21 @@
+
+; <<>> DiG 9.18.30-0ubuntu0.20.04.2-Ubuntu <<>> ns.attacker32.com
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 28428
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+; COOKIE: 24d5e17818d16ae3010000006aec9accd188639bd34e44b9 (good)
+;; QUESTION SECTION:
+;ns.attacker32.com.		IN	A
+
+;; ANSWER SECTION:
+ns.attacker32.com.	290	IN	A	10.11.1.40
+
+;; Query time: 0 msec
+;; SERVER: 10.11.1.20#53(10.11.1.20) (UDP)
+;; WHEN: Thu Nov 05 15:03:40 UTC 2026
+;; MSG SIZE  rcvd: 90
+

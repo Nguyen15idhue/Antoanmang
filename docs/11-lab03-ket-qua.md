@@ -153,9 +153,7 @@ Trả lời: `abcxyz.example.com` là tên miền không tồn tại, Local DNS 
 
 ### 3.1. Thông điệp giả mạo gửi đi từ nút mạng nào (0.5 điểm)
 
-> Gợi ý: gửi từ container Attacker, nhưng **giả mạo địa chỉ IP nguồn** của server thật mà Local DNS Server đang chờ trả lời (server nhận query forward ở mục 4).
-
-Trả lời: `<điền>`
+Trả lời: Thông điệp được gửi từ container **Attacker (`10.11.1.30`)**, nhưng phần header IP bị giả mạo địa chỉ nguồn thành **`8.8.8.8`** – đây chính là server cấp trên mà Local DNS Server đã forward query tới (xác định bằng `forwarders { 8.8.8.8; };` trong `named.conf.options` và quan sát gói tin ở mục 4). Attacker không cần nhận được query của nạn nhân; nó chỉ cần biết trước địa chỉ/port mà nạn nhân dùng để forward.
 
 Bằng chứng xác định IP server thật: ảnh Wireshark `L03-D1-root-server.png`.
 
@@ -163,30 +161,43 @@ Bằng chứng xác định IP server thật: ảnh Wireshark `L03-D1-root-serve
 
 | Trường | Giá trị |
 |---|---|
-| Địa chỉ IP nguồn | `<IP server thật, giả mạo>` |
+| Địa chỉ IP nguồn | `8.8.8.8` (giả mạo server cấp trên) |
 | Số hiệu cổng nguồn | `53` |
-| Địa chỉ IP đích | `<IP Local DNS Server>` |
+| Địa chỉ IP đích | `10.11.1.20` (Local DNS Server) |
 | Số hiệu cổng đích | `44444` |
-| Thông tin tên miền đã giả mạo | `example.com NS ns.attacker32.com` (+ bản ghi A glue cho `ns.attacker32.com`) |
+| Thông tin tên miền đã giả mạo | `example.com NS ns.attacker32.com` (+ bản ghi A glue `ns.attacker32.com A 10.11.1.40`) |
 
-Bằng chứng: file `ip_resp.bin` + ảnh `L03-D5-ip-resp-bin.png`.
+Bằng chứng: file `ip_resp.bin` (139 byte) + ảnh `L03-D5-ip-resp-bin.png`.
+
+```text
+45 00 00 1c 82 83 00 00 40 11 dd 1f 08 08 08 08   E.......@.......
+0a 0b 01 14 00 35 ad 9c 00 77 00 00 26 2f 81 80   .....5...w..&/..
+00 01 00 00 00 01 00 01 06 61 62 63 78 79 7a 07   .........abcxyz.
+65 78 61 6d 70 6c 65 03 63 6f 6d 00 00 01 00 01   example.com.....
+07 65 78 61 6d 70 6c 65 03 63 6f 6d 00 00 02 00   .example.com....
+01 00 00 01 2c 00 13 02 6e 73 0a 61 74 74 61 63   ....,...ns.attac
+6b 65 72 33 32 03 63 6f 6d 00 02 6e 73 0a 61 74   ker32.com..ns.at
+74 61 63 6b 65 72 33 32 03 63 6f 6d 00 00 01 00   tacker32.com....
+01 00 00 01 2c 00 04 0a 0b 01 28                  ....,.....(
+
+```
+
+Phân tích: IP nguồn `08080808` = 8.8.8.8; IP đích `0a0b0114` = 10.11.1.20; cổng đích `0xad9c` = 44444; DNS flags `0x8180` (QR=1, RD=1, RA=1); ANCOUNT=0, NSCOUNT=1, ARCOUNT=1; authority RR `example.com. NS ns.attacker32.com.`; additional RR `ns.attacker32.com. A 10.11.1.40`.
 
 ### 3.3. Điều kiện để tấn công thành công (0.5 điểm)
 
-> Gợi ý: response phải khớp query đang chờ và đến trước response thật.
-
-Trả lời: `<điền>`
+Trả lời: Response giả phải khớp với query mà Local DNS Server đang chờ (đúng địa chỉ/port nguồn của server cấp trên, đúng cổng đích `44444`, đúng Transaction ID và đúng question section), đồng thời phải đến **trước** response thật. Vì Transaction ID là 16 bit, Attacker gửi đồng thời query rồi flood toàn bộ 65536 giá trị ID trong thời gian rất ngắn để tăng xác suất "thắng race".
 
 Checklist điều kiện:
 
-- [ ] Đúng IP nguồn = IP server mà Local DNS Server đã gửi query tới.
-- [ ] Đúng cổng nguồn `53`.
-- [ ] Đúng IP đích = IP Local DNS Server.
-- [ ] Đúng cổng đích `44444` (do `query-source port 44444`).
-- [ ] Đúng Transaction ID của query đang chờ (flood nhiều ID).
-- [ ] Đúng question section (tên miền, type, class).
-- [ ] Đúng định dạng DNS, có bản ghi NS giả và glue hợp lệ.
-- [ ] Đến trước response thật từ server cấp trên.
+- [x] Đúng IP nguồn = IP server mà Local DNS Server đã gửi query tới (`8.8.8.8`).
+- [x] Đúng cổng nguồn `53`.
+- [x] Đúng IP đích = IP Local DNS Server (`10.11.1.20`).
+- [x] Đúng cổng đích `44444` (do `query-source port 44444`).
+- [x] Đúng Transaction ID của query đang chờ (flood nhiều ID).
+- [x] Đúng question section (tên miền, type, class).
+- [x] Đúng định dạng DNS, có bản ghi NS giả và glue hợp lệ.
+- [x] Đến trước response thật từ server cấp trên.
 
 ---
 
